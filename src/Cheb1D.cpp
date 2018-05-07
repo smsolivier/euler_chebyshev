@@ -41,7 +41,7 @@ void Cheb1D::init(int N, int stride, cdouble* input) {
 		); 
 }
 
-void Cheb1D::transform(cdouble* input, int DIR) {
+void Cheb1D::transform(cdouble* input, int DIR) const {
 
 	double* cast = reinterpret_cast<double*>(input); 
 
@@ -72,4 +72,16 @@ void Cheb1D::transform(cdouble* input, int DIR) {
 	else {
 		ERROR("DIR must be -1 or 1"); 
 	}
+}
+
+void Cheb1D::deriv(const cdouble* input, cdouble* output) const {
+	int stride = m_stride/2; 
+
+	output[(m_N-1)*stride] = 0; 
+	output[(m_N-2)*stride] = 2.*(m_N-1)*input[(m_N-1)*stride]; 
+
+	for (int k=m_N-3; k>=0; k--) {
+		output[k*stride] = output[(k+2)*stride] + 2.*(k+1)*input[(k+1)*stride]; 
+	}
+	output[0] /= 2; 
 }

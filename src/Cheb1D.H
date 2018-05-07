@@ -27,7 +27,9 @@ public:
 	/** dir = -1 is forward \n
 		dir = 1 is inverse 
 	**/ 
-	void transform(cdouble* input, int DIR); 
+	void transform(cdouble* input, int DIR) const; 
+	/// derivative of chebyshev function 
+	void deriv(const cdouble* input, cdouble* output) const; 
 private:
 	/// FFTW DCT plan 
 	fftw_plan m_plan; 
