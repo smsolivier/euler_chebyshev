@@ -6,6 +6,7 @@ SRC = $(HOME)/src
 UTILS = $(HOME)/utils
 WRITER = $(UTILS)/VisitWriter
 CHTIMER = $(UTILS)/chtimer
+EIGEN = $(UTILS)/eigen
 
 # import settings from make.inc 
 CFLAGS += -DDIM=$(DIM) $(OPT)
@@ -55,9 +56,9 @@ LIBS += $(FFTW_LIB)
 endif 
 
 # look for source files in
-VPATH = $(SRC) $(WRITER) $(CHTIMER) 
+VPATH = $(SRC) $(WRITER) $(CHTIMER) $(EIGEN)/src 
 # look for includes in 
-CFLAGS += -I$(SRC) -I$(WRITER) -I$(CHTIMER)
+CFLAGS += -I$(SRC) -I$(WRITER) -I$(CHTIMER) -I$(EIGEN)
 
 OBJDIR = $(HOME)/obj
 DEPDIR = $(HOME)/dep
