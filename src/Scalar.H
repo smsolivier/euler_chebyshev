@@ -1,10 +1,7 @@
 #ifndef __SCALAR_H__
 #define __SCALAR_H__
-#include "Common.H"
 #include "FFT1D.H"
 #include "Cheb1D.H"
-#include <vector> 
-#include <array> 
 
 /// represent a scalar variable 
 class Scalar {
@@ -25,18 +22,20 @@ public:
 	/// index into data with 3D indexing 
 	cdouble& operator[](array<int,DIM> ind); 
 	/// const access from 3D indexing 
-	cdouble operator[](array<int,DIM> ind) const; 
+	const cdouble& operator[](array<int,DIM> ind) const; 
+	/// explicit 3D indexing 
+	cdouble& operator()(int a_i, int a_j, int a_k); 
+	/// const explicit 3D indexing 
+	const cdouble& operator()(int a_i, int a_j, int a_k) const; 
 	/// index into data with flattened indexing 
 	cdouble& operator[](int index); 
 	/// const access with flattened indexing 
-	cdouble operator[](int index) const; 
+	const cdouble& operator[](int index) const; 
 	/// get dimensions 
 	array<int,DIM> dims() const; 
 	/// get total size 
 	int size() const; 
 
-	/// get fourier frequency number 
-	double freq(int ind, int d) const; 
 	/// in place transform to FFC space 
 	void forward(); 
 	/// in place transform to physical space 
@@ -45,7 +44,7 @@ public:
 	void inverse(Scalar& scalar) const; 
 
 	/// gradient: \f$ \nabla f \f$ 
-	// Vector gradient() const; 
+	Vector gradient() const; 
 	/// laplacian: \f$ \nabla^2 f \f$ 
 	Scalar laplacian() const; 
 	/// invert \f$ (a - b\nabla^2) f = f \f$ 
@@ -65,6 +64,8 @@ public:
 private:
 	/// remove highest fourier modes 
 	void zeroHighModes(); 
+	/// get fourier frequency number 
+	double freq(int ind, int d) const; 
 	/// 3D to 1D indexing 
 	inline int index(array<int,DIM> ind) const; 
 
