@@ -5,7 +5,8 @@ make.inc
 obj/
 dep/
 *~
-/docs/doxygen
+/docs/html
+docs/latex
 time.table.*
 *.3D
 *.stderr
