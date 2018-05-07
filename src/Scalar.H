@@ -40,8 +40,10 @@ public:
 	void forward(); 
 	/// in place transform to physical space 
 	void inverse(); 
-	/// out of place transform to physical space 
+	/// out of place tnransform to physical space 
 	void inverse(Scalar& scalar) const; 
+	/// get fourier frequency number 
+	double freq(int ind, int d) const; 
 
 	/// gradient: \f$ \nabla f \f$ 
 	Vector gradient() const; 
@@ -51,7 +53,7 @@ public:
 	void invert_laplacian(double a=0, double b=1); 
 
 	/// output total memory of initialized scalar 
-	void memory(); 
+	void memory() const; 
 
 	/// query if (*this) is in physical space 
 	bool isPhysical() const; 
@@ -61,11 +63,12 @@ public:
 	void setPhysical(); 
 	/// set to FFC space 
 	void setFFC(); 
+
+	/// return derivative in z direction 
+	void ddz(int a_i, int a_j, cdouble* output) const; 
 private:
 	/// remove highest fourier modes 
 	void zeroHighModes(); 
-	/// get fourier frequency number 
-	double freq(int ind, int d) const; 
 	/// 3D to 1D indexing 
 	inline int index(array<int,DIM> ind) const; 
 

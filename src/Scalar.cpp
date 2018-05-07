@@ -50,7 +50,7 @@ void Scalar::init(array<int,DIM> N, bool physical) {
 	// setup transform plans 
 	m_fft_x.init(m_N[0], m_N[2]*m_N[1], &m_data[0]); 
 	m_fft_y.init(m_N[1], m_N[2], &m_data[0]); 
-	m_cheb.init(m_N[2], 1, &m_data[0]); 
+	m_cheb.init(m_N[2], 1, &m_data[0]);
 }
 
 cdouble& Scalar::operator[](array<int,DIM> ind) {
@@ -132,8 +132,18 @@ void Scalar::inverse() {
 }
 
 void Scalar::inverse(Scalar& scalar) const {
+	CHECK(isFFC(), "already in physical space"); 
+
 	scalar = (*this); 
 	scalar.inverse(); 
+}
+
+double Scalar::freq(int ind, int d) const {
+#ifndef NCHECK 
+	if (d >= 2) ERROR("frequency not defined for z dimension"); 
+#endif
+	if (ind <= m_N[d]/2) return (double)ind; 
+	else return -1.*(double)m_N[d] + (double)ind;  
 }
 
 Vector Scalar::gradient() const {
@@ -165,24 +175,29 @@ Scalar Scalar::laplacian() const {
 
 	// return in FFC space 
 	Scalar lap(m_N, false);
-	cdouble* d = new cdouble[m_N[2]]; 
-	cdouble* d2 = new cdouble[m_N[2]]; 
 
-	for (int i=0; i<m_N[0]; i++) {
-		double m2 = pow(freq(i,0), 2); 
-		for (int j=0; j<m_N[1]; j++) {
-			double n2 = pow(freq(j,1), 2); 
+	#pragma omp parallel 
+	{
+		cdouble* d = new cdouble[m_N[2]]; 
+		cdouble* d2 = new cdouble[m_N[2]]; 
 
-			m_cheb.deriv(&(*this)(i,j,0), d); 
-			m_cheb.deriv(d, d2); 
-			for (int k=0; k<m_N[2]; k++) {
-				lap(i,j,k) = (-m2 - n2)*(*this)(i,j,k) + d2[k]; 
+		#pragma omp for 
+		for (int i=0; i<m_N[0]; i++) {
+			double m2 = pow(freq(i,0), 2); 
+			for (int j=0; j<m_N[1]; j++) {
+				double n2 = pow(freq(j,1), 2); 
+
+				m_cheb.deriv(&(*this)(i,j,0), d); 
+				m_cheb.deriv(d, d2); 
+				for (int k=0; k<m_N[2]; k++) {
+					lap(i,j,k) = (-m2 - n2)*(*this)(i,j,k) + d2[k]; 
+				}
 			}
 		}
-	}
 
-	delete d; 
-	delete d2; 
+		delete d; 
+		delete d2; 
+	}
 
 	return lap; 
 }
@@ -191,7 +206,7 @@ void Scalar::invert_laplacian(double a, double b) {
 	ERROR("not defined"); 
 }
 
-void Scalar::memory() {
+void Scalar::memory() const {
 	cout << "memory requirement = " << m_nscalars*m_size*sizeof(cdouble)/1e9 << 
 		" GB" << endl; 
 }
@@ -200,6 +215,10 @@ bool Scalar::isPhysical() const {return !m_ffc; }
 bool Scalar::isFFC() const {return m_ffc; } 
 void Scalar::setPhysical() {m_ffc = false; }
 void Scalar::setFFC() {m_ffc = true; } 
+
+void Scalar::ddz(int a_i, int a_j, cdouble* output) const {
+	m_cheb.deriv(&(*this)(a_i, a_j, 0), output); 
+}
 
 void Scalar::zeroHighModes() {
 #ifdef ZERO 
@@ -226,17 +245,12 @@ void Scalar::zeroHighModes() {
 #endif
 }
 
-double Scalar::freq(int ind, int d) const {
-#ifndef NCHECK 
-	if (d >= 2) ERROR("frequency not defined for z dimension"); 
-#endif
-	if (ind <= m_N[d]/2) return (double)ind; 
-	else return -1.*(double)m_N[d] + (double)ind;  
-}
-
 int Scalar::index(array<int,DIM> ind) const {
+	int index = ind[2] + m_N[2]*ind[1] + m_N[2]*m_N[1]*ind[0]; 
+	CHECK((bool)(index < size()) && (bool)(index >= 0), "index out of range (" + 
+		to_string(index) + "/" + to_string(size()) + ")");  
 	// return ind[0] + m_N[0]*ind[1] + m_N[0]*m_N[1]*ind[2]; 
-	return ind[2] + m_N[2]*ind[1] + m_N[2]*m_N[1]*ind[0]; 
+	return index; 
 }
 
 int Scalar::m_nscalars=0; 
