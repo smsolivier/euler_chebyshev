@@ -10,8 +10,8 @@
 	exit(0); }
 
 #ifndef NCHECK 
-#define CHECK(bool, message) \
-	if (!bool) {\
+#define CHECK(test, message) \
+	if (!(bool)test) {\
 	std::cout << "CHECK FAILED in " << __func__ << " (" << __FILE__ \
 		<< " " << __LINE__  << "): " << message << std::endl; \
 	exit(0); }
