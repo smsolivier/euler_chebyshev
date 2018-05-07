@@ -12,7 +12,7 @@
 #ifndef NCHECK 
 #define CHECK(bool, message) \
 	if (!bool) {\
-	std::cout << "ERROR in " << __func__ << " (" << __FILE__ \
+	std::cout << "CHECK FAILED in " << __func__ << " (" << __FILE__ \
 		<< " " << __LINE__  << "): " << message << std::endl; \
 	exit(0); }
 #else 
