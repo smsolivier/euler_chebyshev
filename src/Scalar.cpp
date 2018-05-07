@@ -22,6 +22,7 @@ Scalar::Scalar(const Scalar& scalar) {
 }
 
 void Scalar::operator=(const Scalar& scalar) {
+	CHECK(size()>0, "Scalar not initialized"); 
 	for (int i=0; i<scalar.size(); i++) {
 		m_data[i] = scalar[i]; 
 	}
