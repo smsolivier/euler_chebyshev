@@ -81,7 +81,7 @@ clean :
 cleantree :
 	rm -rf $(DEPDIR) $(OBJDIR) $(HOME)/test/*.vtk $(HOME)/test/*.visit \
 		$(HOME)/test/*.exe $(HOME)/exec/*.vtk $(HOME)/exec/*.exe \
-		$(HOME)/exec/*.visit $(HOME)/exec/time.table.* $(HOME)/test/time.table.*
+		$(HOME)/exec/*.visit $(HOME)/exec/time.table $(HOME)/test/time.table
 
 -include $(DEPS)
 
