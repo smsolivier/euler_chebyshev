@@ -49,8 +49,8 @@ public:
 	Vector gradient() const; 
 	/// laplacian: \f$ \nabla^2 f \f$ 
 	Scalar laplacian() const; 
-	/// invert \f$ (a - b\nabla^2) f = f \f$ 
-	void invert_laplacian(double a=0, double b=1); 
+	/// invert \f$ \nabla^2 f = (D^2 - \vec{k}^2) \f$ 
+	void invert_laplacian(); 
 
 	/// output total memory of initialized scalar 
 	void memory() const; 

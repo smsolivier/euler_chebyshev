@@ -1,6 +1,13 @@
 #include "Inverter.H"
 
-Inverter::Inverter(array<int,DIM> N) {
+Inverter::Inverter() {
+	m_init = false; 
+}
+
+void Inverter::init(array<int,DIM> N) {
+	if (m_init) return; 
+
+	m_init = true; 
 	m_N = N; 
 
 	m_D2.resize(m_N[2], m_N[2]); 
@@ -38,10 +45,16 @@ Inverter::Inverter(array<int,DIM> N) {
 }
 
 Inverter::~Inverter() {
-	// delete m_solvers; 
+	for (int i=0; i<m_N[0]*m_N[1]; i++) {
+		delete m_solvers[i]; 
+	}
+	delete m_solvers; 
+
+	m_init = false; 
 }
 
-void Inverter::operator()(Scalar& scalar) {
+void Inverter::invert(Scalar& scalar) {
+	CHECK(m_init, "not initialized"); 
 	Scalar orig(scalar); // copy 
 
 	Eigen::VectorXcd sol(m_N[2]); 

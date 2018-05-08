@@ -1,4 +1,5 @@
 #include "DataObjects.H" 
+#include "Inverter.H"
 #include <iostream> 
 
 Scalar::Scalar() {} 
@@ -51,6 +52,9 @@ void Scalar::init(array<int,DIM> N, bool physical) {
 	m_fft_x.init(m_N[0], m_N[2]*m_N[1], &m_data[0]); 
 	m_fft_y.init(m_N[1], m_N[2], &m_data[0]); 
 	m_cheb.init(m_N[2], 1, &m_data[0]);
+
+	// call setup on static inverter object 
+	Inverter::instance().init(m_N); 
 }
 
 cdouble& Scalar::operator[](array<int,DIM> ind) {
@@ -202,8 +206,10 @@ Scalar Scalar::laplacian() const {
 	return lap; 
 }
 
-void Scalar::invert_laplacian(double a, double b) {
-	ERROR("not defined"); 
+void Scalar::invert_laplacian() {
+	CHECK(isFFC(), "must start in FFC space"); 
+
+	Inverter::instance().invert((*this)); 
 }
 
 void Scalar::memory() const {

@@ -10,13 +10,20 @@ using namespace std;
 /// invert \f$ \nabla^2 f = \left( D^2 - \vec{k}^2 \right) \f$ 
 class Inverter {
 public: 
-	/// constructor 
-	Inverter(array<int,DIM> N); 
+	static Inverter& instance() {
+		static Inverter inv; 
+		return inv; 
+	}
 	/// destructor 
 	~Inverter(); 
+	/// initialize inverses 
+	void init(array<int,DIM> N); 
 	/// invert a scalar 
-	void operator()(Scalar& scalar); 
+	void invert(Scalar& scalar); 
 private:
+	Inverter(); 
+	/// constructor 
+	Inverter(array<int,DIM> N); 
 	/// size in DIM dimensions 
 	array<int,DIM> m_N; 
 	/// second derivative matrix (in sparse Eigen format) 
@@ -25,6 +32,8 @@ private:
 	Eigen::SparseLU<Eigen::SparseMatrix<cdouble>>** m_solvers; 
 	/// fourier frequencies 
 	double freq(int ind, int d) const; 
+	/// store if init has been called 
+	bool m_init; 
 }; 
 
 #endif

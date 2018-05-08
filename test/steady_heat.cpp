@@ -1,5 +1,4 @@
 #include "DataObjects.H"
-#include "Inverter.H"
 #include "Writer.H"
 
 using namespace std; 
@@ -9,7 +8,6 @@ int main(int argc, char* argv[]) {
 	if (argc>1) N = atoi(argv[1]); 
 	array<int,DIM> dims = {N, N, N}; 
 
-	Inverter inverter(dims); 
 	Writer writer; 
 
 	Scalar g(dims, true); 
@@ -28,7 +26,7 @@ int main(int argc, char* argv[]) {
 	}
 	g.forward(); 
 
-	inverter(g); 
+	g.invert_laplacian(); 
 
 	writer.write(); 
 }
