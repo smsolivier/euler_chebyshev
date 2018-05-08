@@ -3,6 +3,7 @@
 #include <complex> 
 #include <iostream> 
 #include "WTimer.H"
+#include "CH_Timer.H"
 
 #define ERROR(message) {\
 	std::cout << "ERROR in " << __func__ << " (" << __FILE__ \

@@ -6,6 +6,7 @@ Inverter::Inverter() {
 
 void Inverter::init(array<int,DIM> N) {
 	if (m_init) return; 
+	CH_TIMERS("initialize inverter"); 
 
 	m_init = true; 
 	m_N = N; 
@@ -31,15 +32,21 @@ void Inverter::init(array<int,DIM> N) {
 		for (int j=0; j<m_N[1]; j++) {
 			int index = j+i*m_N[1]; 
 			double n2 = pow(freq(j,1), 2); 
-			theta = m_D2; 
-			for (int k=0; k<m_N[2]; k++) {
-				theta.coeffRef(k,k) -= (m2 + n2); 
-				theta.coeffRef(m_N[2]-2,k) = 1; 
-				theta.coeffRef(m_N[2]-1,k) = pow(-1., k); 
-			}
-
 			m_solvers[index] = new Eigen::SparseLU<Eigen::SparseMatrix<cdouble>>; 
-			m_solvers[index]->compute(theta); 
+			if (m2 + n2 != 0) {
+				theta = m_D2; 
+				for (int k=0; k<m_N[2]; k++) {
+					theta.coeffRef(k,k) -= (m2 + n2); 
+					theta.coeffRef(m_N[2]-2,k) = pow(k,2); 
+					theta.coeffRef(m_N[2]-1,k) = pow(k,2)*pow(-1, k+1); 
+					// theta.coeffRef(m_N[2]-2,k) = 1; 
+					// theta.coeffRef(m_N[2]-1,k) = pow(-1., k); 
+				}
+
+				m_solvers[index]->compute(theta);
+				// m_solvers[index]->analyzePattern(theta); 
+				// m_solvers[index]->factorize(theta);  
+			}
 		}
 	}
 }
@@ -54,6 +61,7 @@ Inverter::~Inverter() {
 }
 
 void Inverter::invert(Scalar& scalar) {
+	CH_TIMERS("invert theta"); 
 	CHECK(m_init, "not initialized"); 
 	Scalar orig(scalar); // copy 
 
@@ -62,20 +70,26 @@ void Inverter::invert(Scalar& scalar) {
 
 	Eigen::SparseMatrix<cdouble> theta(m_N[2], m_N[2]); 
 	for (int j=0; j<m_N[1]; j++) {
+		double n = freq(j,1); 
 		for (int i=0; i<m_N[0]; i++) {
-			for (int k=0; k<m_N[2]; k++) {
-				rhs[k] = orig(i,j,k); 
-			}
-			if (i==0 && j==0) {
-				rhs[m_N[2]-1] = 1; 
-				rhs[m_N[2]-2] = 1; 
-			} else {
+			double m = freq(i,0); 
+			if (n+m != 0) {
+				for (int k=0; k<m_N[2]; k++) {
+					rhs[k] = orig(i,j,k); 
+				}
+				// if (i==0 && j==0) {
+				// 	rhs[m_N[2]-1] = 1; 
+				// 	rhs[m_N[2]-2] = 1; 
+				// } else {
+				// 	rhs[m_N[2]-1] = 0; 
+				// 	rhs[m_N[2]-2] = 0; 
+				// }
 				rhs[m_N[2]-1] = 0; 
 				rhs[m_N[2]-2] = 0; 
-			}
-			sol = m_solvers[j+i*m_N[1]]->solve(rhs); 
-			for (int k=0; k<m_N[2]; k++) {
-				scalar(i,j,k) = sol[k]; 
+				sol = m_solvers[j+i*m_N[1]]->solve(rhs); 
+				for (int k=0; k<m_N[2]; k++) {
+					scalar(i,j,k) = sol[k]; 
+				}
 			}
 		}
 	}

@@ -42,6 +42,7 @@ void Vector::inverse(Vector& vector) const {
 }
 
 Vector Vector::cross(const Vector& a_v) const {
+	CH_TIMERS("cross product"); 
 	CHECK(isFFC() && a_v.isFFC(), "must start in FFC space"); 
 
 	Vector u; 
@@ -65,6 +66,7 @@ Vector Vector::cross(const Vector& a_v) const {
 }
 
 Vector Vector::curl() const {
+	CH_TIMERS("curl"); 
 	CHECK(isFFC(), "must start in FFC space"); 
 
 	Vector curl(dims(), false); 
@@ -104,6 +106,7 @@ Vector Vector::curl() const {
 }
 
 Scalar Vector::divergence() const {
+	CH_TIMERS("divergence"); 
 	CHECK(isFFC(), "must start in FFC space"); 
 
 	// return in FFC space 

@@ -31,6 +31,7 @@ void Scalar::operator=(const Scalar& scalar) {
 }
 
 void Scalar::init(array<int,DIM> N, bool physical) {
+	CH_TIMERS("initialize Scalar"); 
 	// store dimensions 
 	m_N = N; 
 	m_size = 1; 
@@ -52,9 +53,6 @@ void Scalar::init(array<int,DIM> N, bool physical) {
 	m_fft_x.init(m_N[0], m_N[2]*m_N[1], &m_data[0]); 
 	m_fft_y.init(m_N[1], m_N[2], &m_data[0]); 
 	m_cheb.init(m_N[2], 1, &m_data[0]);
-
-	// call setup on static inverter object 
-	Inverter::instance().init(m_N); 
 }
 
 cdouble& Scalar::operator[](array<int,DIM> ind) {
@@ -77,6 +75,7 @@ array<int,DIM> Scalar::dims() const {return m_N; }
 int Scalar::size() const {return m_data.size(); }
 
 void Scalar::forward() {
+	CH_TIMERS("forward transform"); 
 	CHECK(isPhysical(), "already in FFC space"); 
 
 	// z 
@@ -107,6 +106,7 @@ void Scalar::forward() {
 }
 
 void Scalar::inverse() {
+	CH_TIMERS("inverse transform"); 
 	CHECK(isFFC(), "already in physical space"); 
 
 	// x
@@ -151,6 +151,7 @@ double Scalar::freq(int ind, int d) const {
 }
 
 Vector Scalar::gradient() const {
+	CH_TIMERS("gradient"); 
 	CHECK(isFFC(), "must start in FFC space"); 
 
 	// return in FFC space 
@@ -175,6 +176,7 @@ Vector Scalar::gradient() const {
 }
 
 Scalar Scalar::laplacian() const {
+	CH_TIMERS("laplacian"); 
 	CHECK(isFFC(), "must start in FFC space"); 
 
 	// return in FFC space 
@@ -208,6 +210,9 @@ Scalar Scalar::laplacian() const {
 
 void Scalar::invert_laplacian() {
 	CHECK(isFFC(), "must start in FFC space"); 
+	
+	// call setup on static inverter object 
+	Inverter::instance().init(m_N); 
 
 	Inverter::instance().invert((*this)); 
 }
