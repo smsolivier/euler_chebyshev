@@ -77,7 +77,7 @@ $(OBJDIR)/%.o : %.cpp $(HOME)/Makefile $(HOME)/make.inc
 	mv $*.d $(DEPDIR)
 
 clean :
-	rm -f *.exe *.vtk *.visit time.table.* *.3D
+	rm -f *.exe *.vtk *.visit time.table *.3D
 cleantree :
 	rm -rf $(DEPDIR) $(OBJDIR) $(HOME)/test/*.vtk $(HOME)/test/*.visit \
 		$(HOME)/test/*.exe $(HOME)/exec/*.vtk $(HOME)/exec/*.exe \

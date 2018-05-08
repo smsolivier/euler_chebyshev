@@ -7,7 +7,7 @@ dep/
 *~
 /docs/html
 docs/latex
-time.table.*
+time.table
 *.3D
 *.stderr
 *.stdout
