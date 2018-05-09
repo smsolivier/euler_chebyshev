@@ -43,8 +43,13 @@ CFLAGS += -DCH_NTIMER
 endif
 
 # enable checks 
-ifdef NCHECK 
-CFLAGS += -DNCHECK 
+ifdef ErrorCheck 
+CFLAGS += -DErrorCheck=$(ErrorCheck) 
+endif
+
+# enable warnings 
+ifdef WARNINGS
+CFLAGS += -DWARNINGS 
 endif
 
 # FFTW setup 
