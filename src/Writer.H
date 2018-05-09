@@ -8,11 +8,10 @@
 
 using namespace std; 
 
-/// Parallel VTK IO class 
+/// VisitWriter wrapper for writing Scalar and Vector objects 
 class Writer {
 public:
 	/// constructor. provide base name of output VTK file 
-	/** actual name will be name+upcxx::rank_me()_step#.vtk **/ 
 	Writer(string name="solution"); 
 	/// destructor. cleans up fstream 
 	~Writer(); 
@@ -44,6 +43,7 @@ private:
 	vector<string> m_vector_names; 
 	/// output frequency 
 	int m_f; 
+	/// output stream for writing Visit master file 
 	ofstream m_out; 
 }; 
 
