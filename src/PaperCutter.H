@@ -6,8 +6,10 @@
 /// solves a difficult matrix with the "paper cutter" method 
 class PaperCutter {
 public:
+	/// default constructor 
+	PaperCutter(); 
 	/// initialize reused elements of paper cutter method 
-	PaperCutter(Eigen::SparseMatrix<cdouble>& theta); 
+	void init(Eigen::SparseMatrix<cdouble>& theta); 
 	/// solve the system 
 	void solve(Eigen::VectorXcd& rhs, Eigen::VectorXcd& sol); 
 private:
@@ -29,6 +31,8 @@ private:
 	array<cdouble,4> m_vals;
 	/// store coefficients of inverse 2x2 matrix  
 	array<cdouble,4> m_inv; 
+	/// if singular matrix skip 
+	bool m_skip; 
 }; 
 
 #endif

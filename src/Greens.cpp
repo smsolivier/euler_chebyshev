@@ -4,12 +4,10 @@
 #include <iostream> 
 #include "Inverter.H"
 
-#define ON 
+// #define ON 
 
 Greens::Greens(array<int,DIM> N) {
-#ifndef ON 
-	WARNING("tau's turned off"); 
-#endif
+#ifdef ON
 	m_N = N; 
 
 	// initialize scalars in FFC space 
@@ -102,6 +100,10 @@ Greens::Greens(array<int,DIM> N) {
 			m_v2[2](i,j,m_N[2]-2) += 1.; 
 		}
 	}
+#else 
+	WARNING("tau's turned off"); 
+#endif
+
 }
 
 const Scalar& Greens::operator[](int a_i) const {return m_scalars[a_i]; }

@@ -1,6 +1,8 @@
 #include "PaperCutter.H"
 
-PaperCutter::PaperCutter(Eigen::SparseMatrix<cdouble>& theta) {
+PaperCutter::PaperCutter() {}
+
+void PaperCutter::init(Eigen::SparseMatrix<cdouble>& theta) {
 	m_theta = theta; 
 
 	m_M = m_theta.block(0,2, m_theta.rows()-2, m_theta.cols()-2); 
@@ -26,7 +28,11 @@ PaperCutter::PaperCutter(Eigen::SparseMatrix<cdouble>& theta) {
 	cdouble d = m_vals[3] - m_B.dot(m_R); 
 
 	cdouble det = a*d - b*c; 
-	CHECK(det!=0., "determinant = 0 :( "); 
+	m_skip = false; 
+	if (det == 0. || m_solver.info() != 0) {
+		cout << "skipping" << endl; 
+		m_skip = true; 
+	}
 
 	// compute inverse 
 	m_inv[0] = d/det; 
@@ -36,15 +42,16 @@ PaperCutter::PaperCutter(Eigen::SparseMatrix<cdouble>& theta) {
 }
 
 void PaperCutter::solve(Eigen::VectorXcd& rhs, Eigen::VectorXcd& sol) {
+	if (m_skip) return; 
 	Eigen::VectorXcd g(rhs.rows()-2); 
 	for (int i=0; i<rhs.rows()-2; i++) {
-		g[i] = rhs[i+2]; 
+		g[i] = rhs[i]; 
 	}
 
 	Eigen::VectorXcd gt = m_solver.solve(g); 
 
-	cdouble g0 = rhs[0] - m_T.dot(gt); 
-	cdouble g1 = rhs[1] - m_B.dot(gt); 
+	cdouble g0 = rhs[rhs.rows()-2] - m_T.dot(gt); 
+	cdouble g1 = rhs[rhs.rows()-1] - m_B.dot(gt); 
 
 	cdouble f0 = m_inv[0]*g0 + m_inv[1]*g1; 
 	cdouble f1 = m_inv[2]*g0 + m_inv[3]*g1; 
@@ -55,4 +62,13 @@ void PaperCutter::solve(Eigen::VectorXcd& rhs, Eigen::VectorXcd& sol) {
 	for (int i=0; i<rhs.rows()-2; i++) {
 		sol[i+2] = gt[i] - f0*m_L[i] - f1*m_R[i]; 
 	}
+
+	#ifdef ErrorCheck 
+	Eigen::VectorXcd check = m_theta*sol - rhs; 
+	double max = -1; 
+	for (int i=0; i<m_theta.rows(); i++) {
+		if (abs(check[i]) > max) max = abs(check[i]); 
+	}
+	CHECK(max < 1e-6, "solver not exact" + to_string(m_skip)); 
+	#endif
 }
