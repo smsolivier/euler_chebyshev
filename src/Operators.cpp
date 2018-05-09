@@ -38,3 +38,14 @@ Vector operator*(const double alpha, const Vector& a) {
 	}
 	return ret; 
 }
+
+Scalar operator*(const double alpha, const Scalar& a) {
+	CH_TIMERS("double * Scalar"); 
+	Scalar ret(a.dims(), a.isPhysical()); 
+
+	#pragma omp parallel for 
+	for (int i=0; i<ret.size(); i++) {
+		ret[i] = alpha * a[i]; 
+	}
+	return ret; 
+}
