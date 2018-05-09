@@ -24,6 +24,8 @@ Scalar::Scalar(const Scalar& scalar) {
 
 void Scalar::operator=(const Scalar& scalar) {
 	if (size() == 0) init(scalar.dims(), scalar.isPhysical()); 
+	if (scalar.isPhysical()) setPhysical(); 
+	else setFFC(); 
 
 	for (int i=0; i<scalar.size(); i++) {
 		m_data[i] = scalar[i]; 
@@ -184,8 +186,7 @@ Scalar Scalar::laplacian() const {
 
 	#pragma omp parallel 
 	{
-		cdouble* d = new cdouble[m_N[2]]; 
-		cdouble* d2 = new cdouble[m_N[2]]; 
+		vector<cdouble> d(m_N[2], 0), d2(m_N[2], 0); 
 
 		#pragma omp for 
 		for (int i=0; i<m_N[0]; i++) {
@@ -193,28 +194,22 @@ Scalar Scalar::laplacian() const {
 			for (int j=0; j<m_N[1]; j++) {
 				double n2 = pow(freq(j,1), 2); 
 
-				m_cheb.deriv(&(*this)(i,j,0), d); 
-				m_cheb.deriv(d, d2); 
+				m_cheb.deriv(&(*this)(i,j,0), &d[0]); 
+				m_cheb.deriv(&d[0], &d2[0]); 
 				for (int k=0; k<m_N[2]; k++) {
 					lap(i,j,k) = (-m2 - n2)*(*this)(i,j,k) + d2[k]; 
 				}
 			}
 		}
-
-		delete d; 
-		delete d2; 
 	}
 
 	return lap; 
 }
 
-void Scalar::invert_laplacian() {
+void Scalar::invert_theta(Vector& Vhalf) {
 	CHECK(isFFC(), "must start in FFC space"); 
-	
-	// call setup on static inverter object 
-	Inverter::instance().init(m_N); 
 
-	Inverter::instance().invert((*this)); 
+	Inverter::instance().invert((*this), Vhalf); 
 }
 
 void Scalar::memory() const {
@@ -229,6 +224,16 @@ void Scalar::setFFC() {m_ffc = true; }
 
 void Scalar::ddz(int a_i, int a_j, cdouble* output) const {
 	m_cheb.deriv(&(*this)(a_i, a_j, 0), output); 
+}
+
+double Scalar::max() const {
+	WCHECK(isPhysical(), "you probably want to be in physical space"); 
+	double max = 0; 
+	for (int i=0; i<size(); i++) {
+		double abs = sqrt(pow((*this)[i].real(), 2) + pow((*this)[i].imag(), 2)); 
+		if (abs > max) max = abs; 
+	}
+	return max; 
 }
 
 void Scalar::zeroHighModes() {
@@ -260,7 +265,6 @@ int Scalar::index(array<int,DIM> ind) const {
 	int index = ind[2] + m_N[2]*ind[1] + m_N[2]*m_N[1]*ind[0]; 
 	CHECK((bool)(index < size()) && (bool)(index >= 0), "index out of range (" + 
 		to_string(index) + "/" + to_string(size()) + ")");  
-	// return ind[0] + m_N[0]*ind[1] + m_N[0]*m_N[1]*ind[2]; 
 	return index; 
 }
 

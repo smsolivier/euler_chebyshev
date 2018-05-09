@@ -50,7 +50,7 @@ public:
 	/// laplacian: \f$ \nabla^2 f \f$ 
 	Scalar laplacian() const; 
 	/// invert \f$ \nabla^2 f = (D^2 - \vec{k}^2) \f$ 
-	void invert_laplacian(); 
+	void invert_theta(Vector& Vhalf); 
 
 	/// output total memory of initialized scalar 
 	void memory() const; 
@@ -66,6 +66,9 @@ public:
 
 	/// return derivative in z direction 
 	void ddz(int a_i, int a_j, cdouble* output) const; 
+
+	/// get max value of (*this) 
+	double max() const; 
 private:
 	/// remove highest fourier modes 
 	void zeroHighModes(); 
