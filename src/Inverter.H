@@ -10,6 +10,8 @@ using namespace std;
 /// invert \f$ \nabla^2 f = \left( D^2 - \vec{k}^2 \right) \f$ 
 class Inverter {
 public: 
+	/// singleton interface
+	/** allow only one static instance to exist to prevent redoing expensive factorizations **/ 
 	static Inverter& instance() {
 		static Inverter inv; 
 		return inv; 
@@ -17,19 +19,26 @@ public:
 	/// destructor 
 	~Inverter(); 
 	/// initialize inverses 
-	void init(array<int,DIM> N); 
+	/** BC=0: double neumann boundaries \\BC=1: double dirichlet \\BC=2: mixed **/
+	void init(array<int,DIM> N, int BC=0); 
+	/// invert a scalar 
+	void invert(Scalar& scalar, Vector& V); 
 	/// invert a scalar 
 	void invert(Scalar& scalar); 
 private:
+	/// default constructor 
 	Inverter(); 
 	/// constructor 
-	Inverter(array<int,DIM> N); 
+	Inverter(array<int,DIM> N);
+
 	/// size in DIM dimensions 
 	array<int,DIM> m_N; 
 	/// second derivative matrix (in sparse Eigen format) 
 	Eigen::SparseMatrix<cdouble> m_D2; 
 	/// inverse matrices 
 	Eigen::SparseLU<Eigen::SparseMatrix<cdouble>>** m_solvers; 
+	/// store theta matrices 
+	Eigen::SparseMatrix<cdouble>** m_theta; 
 	/// fourier frequencies 
 	double freq(int ind, int d) const; 
 	/// store if init has been called 
