@@ -1,5 +1,7 @@
 #include "Cheb1D.H"
 
+#define ON 
+
 Cheb1D::Cheb1D() {
 	m_plan = NULL; 
 }
@@ -13,6 +15,9 @@ Cheb1D::Cheb1D(int N, int stride, cdouble* input) {
 }
 
 void Cheb1D::init(int N, int stride, cdouble* input) {
+#ifndef ON 
+	WARNING("chebyshev transform and derivative turned off"); 
+#endif
 	double* in = reinterpret_cast<double*>(input); 
 	m_N = N; 
 	m_stride = stride; 
@@ -42,7 +47,7 @@ void Cheb1D::init(int N, int stride, cdouble* input) {
 }
 
 void Cheb1D::transform(cdouble* input, int DIR) const {
-
+#ifdef ON 
 	double* cast = reinterpret_cast<double*>(input); 
 
 	// forward transform to chebyshev space 
@@ -72,9 +77,11 @@ void Cheb1D::transform(cdouble* input, int DIR) const {
 	else {
 		ERROR("DIR must be -1 or 1"); 
 	}
+#endif
 }
 
 void Cheb1D::deriv(const cdouble* input, cdouble* output) const {
+#ifdef ON 
 	int stride = m_stride/2; 
 
 	output[(m_N-1)*stride] = 0; 
@@ -84,4 +91,5 @@ void Cheb1D::deriv(const cdouble* input, cdouble* output) const {
 		output[k*stride] = output[(k+2)*stride] + 2.*(k+1)*input[(k+1)*stride]; 
 	}
 	output[0] /= 2; 
+#endif
 }
