@@ -101,7 +101,7 @@ int main(int argc, char* argv[]) {
 	PRINT("curl", wrong); 
 
 	// --- divergence --- 
-	Vector v; 
+	Vector v(dims); 
 	for (int d=0; d<DIM; d++) {
 		v[d] = f; 
 	}
@@ -114,14 +114,60 @@ int main(int argc, char* argv[]) {
 			double y = j*2*M_PI/dims[1]; 
 			for (int k=0; k<dims[2]; k++) {
 				double z = cos(k*M_PI/(dims[2]-1)); 
-
-				cdouble asdf = div(i,j,k); 
-
-				// if (abs(div(i,j,k).real() - (
-				// 	cos(x)*sin(y)*z*z + sin(x)*cos(y)*z*z +
-				// 	sin(x)*sin(y)*2*z)) > TOL) wrong = true;  
+				if (abs(div(i,j,k).real() - (
+					cos(x)*sin(y)*z*z + sin(x)*cos(y)*z*z +
+					sin(x)*sin(y)*2*z)) > TOL) wrong = true;  
 			}
 		}
 	}
 	PRINT("divergence", wrong); 
+
+	// --- arithmetic --- 
+	Vector a(dims, true); 
+	Vector b(dims, true); 
+	for (int i=0; i<a.size(); i++) {
+		for (int d=0; d<DIM; d++) {
+			a[d][i] = 1.; 
+			b[d][i] = 1.; 
+		}
+	}
+
+	Vector sum = a+b; 
+	Vector sub = a - b; 
+	Vector mult = 2.*a; 
+	wrong = false; 
+	for (int i=0; i<a.size(); i++) {
+		for (int d=0; d<DIM; d++) {
+			if (abs(sum[d][i] - 2.) > TOL) wrong = true; 
+		}
+	}
+	PRINT("vector addition", wrong); 
+
+	wrong = false; 
+	for (int i=0; i<a.size(); i++) {
+		for (int d=0; d<DIM; d++) {
+			if (abs(sub[d][i]) > TOL) {
+				wrong = true; 
+				cout << sub[d][i] << endl; 
+			}
+		}
+	}
+	PRINT("vector subtraction", wrong); 
+
+	wrong = false; 
+	for (int i=0; i<a.size(); i++) {
+		for (int d=0; d<DIM; d++) {
+			if (abs(mult[d][i] - 2.) > TOL) {
+				wrong = true; 
+			}
+		}
+	}
+	PRINT("double * Vector", wrong); 
+
+	Scalar smult = 2.*a[0]; 
+	wrong = false; 
+	for (int i=0; i<smult.size(); i++) {
+		if (abs(smult[i] - 2.) > TOL) wrong = true; 
+	}
+	PRINT("double * Scalar", wrong); 
 }
