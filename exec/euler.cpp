@@ -13,6 +13,9 @@ int main(int argc, char* argv[]) {
 #ifndef ZERO 
 	WARNING("unstable if zero not defined"); 
 #endif
+#ifdef PC 
+	cout << "paper cutter on" << endl; 
+#endif 
 	int N = 16; 
 	if (argc > 1) N = atoi(argv[1]); 
 	array<int,DIM> dims = {N,N,N}; 
@@ -77,7 +80,7 @@ int main(int argc, char* argv[]) {
 
 	// set initial conditions 
 	double width = M_PI/8; 
-	double mag = 50; 
+	double mag = 25; 
 	double dist = M_PI/2; 
 	for (int i=0; i<dims[0]; i++) {
 		double x = 2*M_PI*i/dims[0]; 
@@ -106,18 +109,6 @@ int main(int argc, char* argv[]) {
 	grad = psi.gradient(); 
 	V0[0] = -1.*grad[1]; 
 	V0[1] = grad[0]; 
-
-	// for (int i=0; i<dims[0]; i++) {
-	// 	for (int j=0; j<dims[1]; j++) {
-	// 		for (int k=0; k<dims[2]; k++) {
-	// 			double z = cos(k*M_PI/(dims[2]-1)); 
-	// 			// if (z > 0) V0[0](i,j,k) = 1.; 
-	// 			// else V0[0](i,j,k) = -1.; 
-	// 			V0[0](i,j,k) = 1; 
-	// 		}
-	// 	}
-	// }
-	// V0.forward(); 
 	
 	// store cross products 
 	cross0 = K*V0.cross(omega0); 
@@ -126,7 +117,7 @@ int main(int argc, char* argv[]) {
 	omega0 = V0.curl(); 
 
 	Vhalf = V0 + K*V0.cross(omega0); 
-	Pih = Vhalf.divergence(); 
+	Pih = Vhalf.divergence();
 	Pih.invert_theta(Vhalf); 
 	Vhalf = V0 + K*V0.cross(omega0) - Pih.gradient(); 
 	greens.tau(Vhalf, V1); 
@@ -173,7 +164,7 @@ int main(int argc, char* argv[]) {
 		writer.write(); 
 
 		double div_max = div.max(); 
-		WCHECK(div_max < 1e-3, "divergence greater than tolerance"); 
+		CHECK(div_max < 1e-3, "divergence greater than tolerance"); 
 
 		// for (int k=0; k<dims[2]; k++) {
 		// 	CHECK(V[2](0,0,k) == 0., "Vz must be zero"); 
