@@ -23,7 +23,7 @@ int main() {
 		if (abs(f[i].real() - ans[i]) > 1e-3) wrong = true; 
 	}
 	if (wrong) cout << "WRONG!" << endl; 
-	else cout << "my man!" << endl; 
+	else cout << "CORRECT! forward + inverse = original vector" << endl; 
 
 	delete f; 
 	delete ans; 

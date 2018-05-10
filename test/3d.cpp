@@ -29,6 +29,6 @@ int main(int argc, char* argv[]) {
 		if (abs(s[i].real() - ans[i].real()) > 1e-3) wrong = true; 
 	}
 	if (wrong) cout << "WRONG!" << endl; 
-	else cout << "my man!" << endl; 
+	else cout << "CORRECT! forward + inverse = original data (3D FFC)" << endl; 
 
 }

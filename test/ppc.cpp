@@ -43,5 +43,5 @@ int main(int argc, char* argv[]) {
 		if (abs(mult[i] - rhs[i]) > 1e-10) wrong = true; 
 	}
 	if (wrong) cout << "WRONG!" << endl; 
-	else cout << "my man!" << endl; 
+	else cout << "CORRECT! theta*x = rhs" << endl; 
 }
