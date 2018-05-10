@@ -21,7 +21,7 @@ public:
 	/// add a Vector to the output list 
 	void add(Vector& a_vector, string a_name); 
 	/// write all variables to VTK 
-	void write(); 
+	void write(bool force=false); 
 
 	/// set write frequency to not output at every time step 
 	/** write every f calls to write **/ 

@@ -30,11 +30,11 @@ void Writer::add(Vector& a_vector, string a_name) {
 
 void Writer::setFreq(int a_f) {m_f = a_f; } 
 
-void Writer::write() {
+void Writer::write(bool force) {
 #ifndef NWRITE 
 	CH_TIMERS("write to vtk"); 
 
-	if (m_count++%m_f != 0) {
+	if (m_count++%m_f != 0 && !force) {
 		return; 
 	}
 
