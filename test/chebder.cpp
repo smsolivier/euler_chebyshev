@@ -28,8 +28,8 @@ int main(int argc, char* argv[]) {
 	for (int i=0; i<N; i++) {
 		if (abs(d[i] - 3.*z[i]*z[i]) > 1e-3) wrong = true; 
 	}
-	if (wrong) cout << "first derivative: WRONG!" << endl; 
-	else cout << "first derivative: pass" << endl; 
+	if (wrong) cout << "chebyshev 1st derivative: WRONG!" << endl; 
+	else cout << "chebyshev 1st derivative: pass" << endl; 
 
 	cheb.transform(&d[0], -1); 
 	cheb.deriv(&d[0], &d2[0]); 
@@ -39,6 +39,6 @@ int main(int argc, char* argv[]) {
 	for (int i=0; i<N; i++) {
 		if (abs(d2[i] - 6.*z[i]) > 1e-3) wrong = true; 
 	}
-	if (wrong) cout << "second derivative: WRONG!" << endl; 
-	else cout << "second derivate: pass" << endl; 
+	if (wrong) cout << "chebyshev 2nd derivative: WRONG!" << endl; 
+	else cout << "chebyshev 2nd derivative: pass" << endl; 
 }
