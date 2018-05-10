@@ -73,6 +73,7 @@ Greens::Greens(array<int,DIM> N) {
 		m_det[j].resize(m_N[0]); 
 	}
 
+	#pragma omp parallel for 
 	for (int j=0; j<m_N[1]; j++) {
 		for (int i=0; i<m_N[0]; i++) {
 			m_a[j][i] = m_lap[0](i,j,m_N[2]-1) - m_coef[0]; 
@@ -84,17 +85,13 @@ Greens::Greens(array<int,DIM> N) {
 	}
 
 	// compute T_m z - del G1 
+	// compute T_{M-1} z - del G_{-1} 
 	m_v1 = -1.*m_grad[0]; 
+	m_v2 = -1.*m_grad[1]; 	
+	#pragma omp parallel for 
 	for (int i=0; i<m_N[0]; i++) {
 		for (int j=0; j<m_N[1]; j++) {
 			m_v1[2](i,j,m_N[2]-1) += 1.; 
-		}
-	}
-
-	// compute T_{M-1} z - del G_{-1} 
-	m_v2 = -1.*m_grad[1]; 
-	for (int i=0; i<m_N[0]; i++) {
-		for (int j=0; j<m_N[1]; j++) {
 			m_v2[2](i,j,m_N[2]-2) += 1.; 
 		}
 	}
@@ -117,6 +114,7 @@ void Greens::tau(Vector& V34, Vector& V) {
 		tau1[j].resize(m_N[0]); 
 	}
 
+	#pragma omp parallel for 
 	for (int j=1; j<m_N[1]; j++) {
 		for (int i=1; i<m_N[0]; i++) {
 			CHECK((bool)(m_det[j][i] != 0.), 
@@ -128,6 +126,7 @@ void Greens::tau(Vector& V34, Vector& V) {
 		}
 	}
 
+	#pragma omp parallel for 
 	for (int i=0; i<m_N[0]; i++) {
 		for (int j=0; j<m_N[1]; j++) {
 			for (int k=0; k<m_N[2]; k++) {
