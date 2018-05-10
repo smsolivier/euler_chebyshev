@@ -37,6 +37,16 @@ ifdef ZERO
 CFLAGS += -DZERO
 endif
 
+# use paper cutter method v regular LU 
+ifdef PaperCutter
+CFLAGS += -DPC 
+endif
+
+# turn on tau's
+ifdef UseTau
+CFLAGS += -DTAU 
+endif
+
 # enable CH_Timer 
 ifdef CH_NTIMER 
 CFLAGS += -DCH_NTIMER
