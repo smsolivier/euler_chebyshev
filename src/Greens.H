@@ -17,7 +17,7 @@ public:
 	const Scalar& operator[](int a_i) const; 
 
 	/// solve 2x2 system for \f$ \tau \f$ 
-	void tau(const Vector& V34, Vector& V); 
+	void tau(Vector& V34, Vector& V); 
 private:
 	/// store NG scalars 
 	array<Scalar,NG> m_scalars; 

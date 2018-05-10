@@ -4,10 +4,8 @@
 #include <iostream> 
 #include "Inverter.H"
 
-// #define ON 
-
 Greens::Greens(array<int,DIM> N) {
-#ifdef ON
+#ifdef TAU
 	m_N = N; 
 
 	// initialize scalars in FFC space 
@@ -108,19 +106,17 @@ Greens::Greens(array<int,DIM> N) {
 
 const Scalar& Greens::operator[](int a_i) const {return m_scalars[a_i]; }
 
-void Greens::tau(const Vector& V34, Vector& V) {
+void Greens::tau(Vector& V34, Vector& V) {
+#ifdef TAU
 	Scalar div = V34.divergence(); 
 	vector<vector<cdouble>> tau0, tau1; 
-	if (tau0.size() == 0) {
-		tau0.resize(m_N[1]); 
-		tau1.resize(m_N[1]); 
-		for (int j=0; j<m_N[1]; j++) {
-			tau0[j].resize(m_N[0]); 
-			tau1[j].resize(m_N[0]); 
-		}
+	tau0.resize(m_N[1]); 
+	tau1.resize(m_N[1]); 
+	for (int j=0; j<m_N[1]; j++) {
+		tau0[j].resize(m_N[0]); 
+		tau1[j].resize(m_N[0]); 
 	}
 
-#ifdef ON 
 	for (int j=1; j<m_N[1]; j++) {
 		for (int i=1; i<m_N[0]; i++) {
 			CHECK((bool)(m_det[j][i] != 0.), 
@@ -129,10 +125,8 @@ void Greens::tau(const Vector& V34, Vector& V) {
 				m_b[j][i]*div(i,j,m_N[2]-2)); 
 			tau1[j][i] = 1./m_det[j][i]*(
 				-m_c[j][i]*div(i,j,m_N[2]-1) + m_a[j][i]*div(i,j,m_N[2]-2)); 
-			if (abs(tau0[j][i]) > 1e-5) cout << "tau0 = " << tau0[j][i] << endl; 
 		}
 	}
-#endif
 
 	for (int i=0; i<m_N[0]; i++) {
 		for (int j=0; j<m_N[1]; j++) {
@@ -144,4 +138,13 @@ void Greens::tau(const Vector& V34, Vector& V) {
 			}
 		}
 	}
+#else 
+	// V = V34; 
+	for (int i=0; i<V.size(); i++) {
+		for (int d=0; d<DIM; d++) {
+			V[d][i] = V34[d][i]; 
+			CHECK(!isnan(V[d][i].real()), "nan"); 
+		}
+	}
+#endif
 }
