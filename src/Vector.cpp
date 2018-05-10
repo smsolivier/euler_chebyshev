@@ -115,21 +115,25 @@ Scalar Vector::divergence() const {
 	// return in FFC space 
 	Scalar div(dims(), false);
 
-	cdouble imag(0,1); 
-	cdouble* D = new cdouble[m_N[2]]; 
-	for (int i=0; i<m_N[0]; i++) {
-		double m = (*this)[0].freq(i,0); 
-		for (int j=0; j<m_N[1]; j++) {
-			double n = (*this)[0].freq(j,1); 
-			m_vector[2].ddz(i,j, D); 
-			for (int k=0; k<m_N[2]; k++) {
-				div(i,j,k) = imag*m*(*this)[0](i,j,k) 
-					+ imag*n*(*this)[1](i,j,k) 
-					+ D[k]; 				
+	#pragma omp parallel 
+	{
+		cdouble imag(0,1); 
+		cdouble* D = new cdouble[m_N[2]]; 
+		#pragma omp for 
+		for (int i=0; i<m_N[0]; i++) {
+			double m = (*this)[0].freq(i,0); 
+			for (int j=0; j<m_N[1]; j++) {
+				double n = (*this)[0].freq(j,1); 
+				m_vector[2].ddz(i,j, D); 
+				for (int k=0; k<m_N[2]; k++) {
+					div(i,j,k) = imag*m*(*this)[0](i,j,k) 
+						+ imag*n*(*this)[1](i,j,k) 
+						+ D[k]; 				
+				}
 			}
-		}
+		} 
+		delete D;
 	} 
-	delete D; 
 
 	return div; 
 }
