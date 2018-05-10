@@ -29,6 +29,7 @@ void Inverter::init(array<int,DIM> N, int BC) {
 
 	m_ppc = new PaperCutter*[m_N[0]*m_N[1]]; 
 	m_theta = new Eigen::SparseMatrix<cdouble>*[m_N[0]*m_N[1]]; 
+	#pragma omp parallel for 
 	for (int i=0; i<m_N[0]; i++) {
 		double m2 = pow(freq(i,0), 2); 
 		for (int j=0; j<m_N[1]; j++) {
@@ -74,33 +75,28 @@ void Inverter::invert(Scalar& scalar, Vector& V) {
 	CH_TIMERS("invert theta"); 
 	if (!m_init) init(scalar.dims()); 
 	Scalar orig = scalar; // copy
-	for (int i=0; i<orig.size(); i++) {
-		CHECK(!isnan(scalar[i].real()), "nan " + to_string(i)); 
-		CHECK(!isinf(scalar[i].real()), "inf"); 
-	}
 
-	Eigen::VectorXcd sol(m_N[2]); 
-	Eigen::VectorXcd rhs(m_N[2]); 
-
-	for (int i=0; i<m_N[0]; i++) {
-		for (int j=0; j<m_N[1]; j++) {
-			int index = j + i*m_N[1]; 
-			for (int k=0; k<m_N[2]; k++) {
-				rhs[k] = orig(i,j,k); 
-				CHECK(!isnan(abs(rhs[k])), "nan"); 
-				CHECK(!isinf(abs(rhs[k])), "inf"); 
-			}
-			rhs[m_N[2]-1] = 0; 
-			rhs[m_N[2]-2] = 0; 
-			for (int k=0; k<m_N[2]; k++) {
-				rhs[m_N[2]-2] += V[2](i,j,k) * pow(-1., k); 
-				rhs[m_N[2]-1] += V[2](i,j,k); 
-			}
-			m_ppc[index]->solve(rhs, sol); 
-			for (int k=0; k<m_N[2]; k++) {
-				scalar(i,j,k) = sol[k]; 
-				CHECK(!isnan(abs(sol[k])), "nan"); 
-				CHECK(!isinf(abs(sol[k])), "inf");
+	#pragma omp parallel 
+	{
+		Eigen::VectorXcd sol(m_N[2]); 
+		Eigen::VectorXcd rhs(m_N[2]);
+		#pragma omp for 
+		for (int i=0; i<m_N[0]; i++) {
+			for (int j=0; j<m_N[1]; j++) {
+				int index = j + i*m_N[1]; 
+				for (int k=0; k<m_N[2]; k++) {
+					rhs[k] = orig(i,j,k); 
+				}
+				rhs[m_N[2]-1] = 0; 
+				rhs[m_N[2]-2] = 0; 
+				for (int k=0; k<m_N[2]; k++) {
+					rhs[m_N[2]-2] += V[2](i,j,k) * pow(-1., k); 
+					rhs[m_N[2]-1] += V[2](i,j,k); 
+				}
+				m_ppc[index]->solve(rhs, sol); 
+				for (int k=0; k<m_N[2]; k++) {
+					scalar(i,j,k) = sol[k]; 
+				}
 			}
 		}
 	}
@@ -111,20 +107,23 @@ void Inverter::invert(Scalar& scalar) {
 	if (!m_init) init(scalar.dims()); 
 	Scalar orig = scalar; // copy
 
-	Eigen::VectorXcd sol(m_N[2]); 
-	Eigen::VectorXcd rhs(m_N[2]); 
-
-	for (int i=0; i<m_N[0]; i++) {
-		for (int j=0; j<m_N[1]; j++) {
-			int index = j + i*m_N[1]; 
-			for (int k=0; k<m_N[2]; k++) {
-				rhs[k] = orig(i,j,k); 
+	#pragma omp parallel 
+	{
+		Eigen::VectorXcd sol(m_N[2]); 
+		Eigen::VectorXcd rhs(m_N[2]);
+		#pragma omp for 
+		for (int i=0; i<m_N[0]; i++) {
+			for (int j=0; j<m_N[1]; j++) {
+				int index = j + i*m_N[1]; 
+				for (int k=0; k<m_N[2]; k++) {
+					rhs[k] = orig(i,j,k); 
+				}
+				m_ppc[index]->solve(rhs, sol); 
+				for (int k=0; k<m_N[2]; k++) {
+					scalar(i,j,k) = sol[k]; 
+				}
 			}
-			m_ppc[index]->solve(rhs, sol); 
-			for (int k=0; k<m_N[2]; k++) {
-				scalar(i,j,k) = sol[k]; 
-			}
-		}
+		}		
 	}
 }
 

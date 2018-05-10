@@ -54,9 +54,6 @@ void PaperCutter::solve(Eigen::VectorXcd& rhs, Eigen::VectorXcd& sol) {
 		return; 
 	}
 
-	for (int i=0; i<m_M.rows(); i++) {
-		CHECK(!isnan(rhs[i].real()), "nan"); 
-	}
 	Eigen::VectorXcd g(m_M.rows()); 
 	for (int i=0; i<g.rows(); i++) {
 		g[i] = rhs[i]; 
