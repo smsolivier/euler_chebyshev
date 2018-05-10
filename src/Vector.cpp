@@ -50,17 +50,20 @@ Vector Vector::cross(const Vector& a_v) const {
 	inverse(u); 
 	a_v.inverse(v); 
 
-	array<cdouble,DIM> tmp; // store components of u_i to do in place 
-	#pragma omp parallel for 
-	for (int i=0; i<u.size(); i++) {
-		for (int d=0; d<DIM; d++) {
-			tmp[d] = u[d][i]; 
+	#pragma omp parallel
+	{
+		array<cdouble,DIM> tmp; // store components of u_i to do in place 
+		#pragma omp for 
+		for (int i=0; i<u.size(); i++) {
+			for (int d=0; d<DIM; d++) {
+				tmp[d] = u[d][i]; 
+			}
+			u[0][i] = tmp[1]*v[2][i] - tmp[2]*v[1][i]; 
+			u[1][i] = tmp[2]*v[0][i] - tmp[0]*v[2][i]; 
+			u[2][i] = tmp[0]*v[1][i] - tmp[1]*v[0][i]; 
 		}
-		u[0][i] = tmp[1]*v[2][i] - tmp[2]*v[1][i]; 
-		u[1][i] = tmp[2]*v[0][i] - tmp[0]*v[2][i]; 
-		u[2][i] = tmp[0]*v[1][i] - tmp[1]*v[0][i]; 
-	}
 
+	}
 	u.forward(); 
 	return u; 
 }
