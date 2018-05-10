@@ -29,15 +29,14 @@ int main() {
 	ans[2] = 1; 
 	for (int i=0; i<N; i++) {
 		if (abs(ans[i] - f[i]) > 1e-5) wrong = true; 
-		cout << f[i] << endl; 
 	}
-	PRINT(wrong, "forward transform"); 
+	PRINT(wrong, "forward chebyshev transform"); 
 
 	cheb1d.transform(&f[0], 1); 
 	wrong = false; 
 	for (int i=0; i<N; i++) {
 		if (abs(f[i] - (2*z[i]*z[i]-1)) > 1e-5) wrong = true; 
 	}
-	PRINT(wrong, "inverse transform"); 
+	PRINT(wrong, "inverse chebyshev transform"); 
 
 }
