@@ -38,6 +38,7 @@ Greens::Greens(array<int,DIM> N) {
 	m_coef[2] = dTm[m_N[2]-2]; 
 	m_coef[3] = dTm1[m_N[2]-2]; 
 
+
 	// set boundary conditions 
 	dTm[m_N[2]-1] = 1; 
 	dTm[m_N[2]-2] = pow(-1, m_N[2]); 
@@ -117,12 +118,13 @@ void Greens::tau(Vector& V34, Vector& V) {
 	#pragma omp parallel for 
 	for (int j=1; j<m_N[1]; j++) {
 		for (int i=1; i<m_N[0]; i++) {
-			CHECK((bool)(m_det[j][i] != 0.), 
+			CHECK(m_det[j][i] != 0., 
 				"determinant is zero " + to_string(i) + ", " + to_string(j)); 
 			tau0[j][i] = 1./m_det[j][i]*(m_d[j][i]*div(i,j,m_N[2]-1) - 
 				m_b[j][i]*div(i,j,m_N[2]-2)); 
 			tau1[j][i] = 1./m_det[j][i]*(
 				-m_c[j][i]*div(i,j,m_N[2]-1) + m_a[j][i]*div(i,j,m_N[2]-2)); 
+			WCHECK(abs(tau0[j][i]) < 1e-5, "tau0 larger than tolerance"); 
 		}
 	}
 
