@@ -5,7 +5,7 @@ using namespace std;
 
 int main(int argc, char* argv[]) {
 #ifdef ZERO 
-	WARNING("answers will be wrong with ZERO defined"); 
+	ERROR("answers will be wrong with ZERO defined"); 
 #endif
 	int N = 8;  
 	if (argc > 1) N = atoi(argv[1]); 
