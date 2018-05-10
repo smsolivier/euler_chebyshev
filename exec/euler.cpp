@@ -17,14 +17,14 @@ int main(int argc, char* argv[]) {
 	cout << "paper cutter on" << endl; 
 #endif 
 #ifdef TAU 
-	cout << "tau's on" << endl; 
+	cout << "tau on" << endl; 
 #endif
 	int N = 16; 
 	if (argc > 1) N = atoi(argv[1]); 
 	array<int,DIM> dims = {N,N,N}; 
 
 	double T = 6; // end time 
-	double K = 0.0001; // time step 
+	double K = 0.001; // time step 
 	int Nt = T/K; // number of time steps 
 	int NSAVES = 300; 
 	int mod = Nt/NSAVES; 
@@ -54,9 +54,6 @@ int main(int argc, char* argv[]) {
 
 	// divergence 
 	Scalar div(dims); 
-
-	// store K/2*(3 V1xomega1 - V0xomega0)
-	Vector AB2_cross(dims); 
 
 	// store K*V_i x omega_i
 	Vector cross1(dims); 
@@ -135,11 +132,10 @@ int main(int argc, char* argv[]) {
 	for (int t=1; t<Nt+1; t++) {
 
 		// // cross products 
-		// cross1 = K*V1.cross(omega1); 
-		// AB2_cross = .5*(3.*cross1 - cross0);
+		cross1 = K*V1.cross(omega1); 
 
 		// AB2 step 
-		Vhalf = V1 + K/2*(3.*V1.cross(omega1) - V0.cross(omega0)); 
+		Vhalf = V1 + .5*(3.*cross1 - cross0); 
 
 		// pressure term 
 		Pih = Vhalf.divergence(); 
@@ -161,7 +157,7 @@ int main(int argc, char* argv[]) {
 		V1 = V; 
 		omega0 = omega1; 
 		omega1 = omega; 
-		// cross0 = cross1; 
+		cross0 = cross1; 
 
 		// write to VTK 
 		writer.write(); 
