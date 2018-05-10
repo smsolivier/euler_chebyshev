@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	PaperCutter ppc; 
-	ppc.init(theta); 
+	ppc.init(&theta); 
 
 	Eigen::VectorXcd rhs(N), sol(N); 
 	for (int i=0; i<N; i++) {
