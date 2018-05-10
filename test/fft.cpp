@@ -22,8 +22,8 @@ int main() {
 	for (int i=0; i<N; i++) {
 		if (abs(f[i].real() - ans[i]) > 1e-3) wrong = true; 
 	}
-	if (wrong) cout << "WRONG!" << endl; 
-	else cout << "CORRECT! forward + inverse = original vector" << endl; 
+	if (wrong) cout << "1D FFT: WRONG!" << endl; 
+	else cout << "1D FFT: pass" << endl; 
 
 	delete f; 
 	delete ans; 

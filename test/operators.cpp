@@ -7,7 +7,7 @@ using namespace std;
 
 #define PRINT(name, wrong) \
 	if (wrong) cout << name << ": WRONG!" << endl; \
-	else cout << name << ": my man!" << endl; 
+	else cout << name << ": pass" << endl; 
 
 int main(int argc, char* argv[]) {
 	int N = 32; 

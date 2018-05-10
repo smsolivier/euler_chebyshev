@@ -6,7 +6,7 @@
 using namespace std; 
 
 #define PRINT(wrong, message) if (wrong) cout << message << ": WRONG!" << endl; \
-	else cout << message << ": my man!" << endl; 
+	else cout << message << ": pass" << endl; 
 
 int main() {
 	int N = 8; 
@@ -30,13 +30,13 @@ int main() {
 	for (int i=0; i<N; i++) {
 		if (abs(ans[i] - f[i]) > 1e-5) wrong = true; 
 	}
-	PRINT(wrong, "forward chebyshev transform"); 
+	PRINT(wrong, "1D forward chebyshev transform"); 
 
 	cheb1d.transform(&f[0], 1); 
 	wrong = false; 
 	for (int i=0; i<N; i++) {
 		if (abs(f[i] - (2*z[i]*z[i]-1)) > 1e-5) wrong = true; 
 	}
-	PRINT(wrong, "inverse chebyshev transform"); 
+	PRINT(wrong, "1D inverse chebyshev transform"); 
 
 }

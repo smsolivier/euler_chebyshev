@@ -14,8 +14,6 @@ int main(int argc, char* argv[]) {
 	Scalar s(dims, true); 
 	Scalar ans(dims, true); 
 
-	s.memory(); 
-
 	for (int i=0; i<s.size(); i++) {
 		s[i] = (double)rand()/RAND_MAX; 
 		ans[i] = s[i].real(); 
@@ -28,7 +26,7 @@ int main(int argc, char* argv[]) {
 	for (int i=0; i<s.size(); i++) {
 		if (abs(s[i].real() - ans[i].real()) > 1e-3) wrong = true; 
 	}
-	if (wrong) cout << "WRONG!" << endl; 
-	else cout << "CORRECT! forward + inverse = original data (3D FFC)" << endl; 
+	if (wrong) cout << "3D FFC transform: WRONG!" << endl; 
+	else cout << "3D FFC transform: pass" << endl; 
 
 }

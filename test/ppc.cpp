@@ -42,6 +42,10 @@ int main(int argc, char* argv[]) {
 	for (int i=0; i<N; i++) {
 		if (abs(mult[i] - rhs[i]) > 1e-10) wrong = true; 
 	}
-	if (wrong) cout << "WRONG!" << endl; 
-	else cout << "CORRECT! theta*x = rhs" << endl; 
+	string name = "eigen SparseLU"; 
+	#ifdef PC 
+	name = "paper cutter"; 
+	#endif
+	if (wrong) cout << name << ": WRONG!" << endl; 
+	else cout << name << " solve: pass" << endl; 
 }
