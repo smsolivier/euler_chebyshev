@@ -9,12 +9,12 @@ public:
 	/// default constructor 
 	PaperCutter(); 
 	/// initialize reused elements of paper cutter method 
-	void init(Eigen::SparseMatrix<cdouble>& theta); 
+	void init(Eigen::SparseMatrix<cdouble>* theta); 
 	/// solve the system 
 	void solve(Eigen::VectorXcd& rhs, Eigen::VectorXcd& sol); 
 private:
 	/// original matrix 
-	Eigen::SparseMatrix<cdouble> m_theta; 
+	Eigen::SparseMatrix<cdouble>* m_theta; 
 	/// SparseLU solver 
 	Eigen::SparseLU<Eigen::SparseMatrix<cdouble>> m_solver; 
 	/// reduced matrix 

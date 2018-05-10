@@ -3,7 +3,7 @@
 #include <vector> 
 #include "Common.H" 
 #include "DataObjects.H"
-#include "Sparse" 
+#include "PaperCutter.H"
 
 using namespace std; 
 
@@ -30,17 +30,17 @@ private:
 	Inverter(); 
 	/// constructor 
 	Inverter(array<int,DIM> N);
+	/// fourier frequencies 
+	double freq(int ind, int d) const; 
 
 	/// size in DIM dimensions 
 	array<int,DIM> m_N; 
 	/// second derivative matrix (in sparse Eigen format) 
 	Eigen::SparseMatrix<cdouble> m_D2; 
-	/// inverse matrices 
-	Eigen::SparseLU<Eigen::SparseMatrix<cdouble>>** m_solvers; 
-	/// store theta matrices 
+	/// store all matrices 
 	Eigen::SparseMatrix<cdouble>** m_theta; 
-	/// fourier frequencies 
-	double freq(int ind, int d) const; 
+	/// pointers to PaperCutter's
+	PaperCutter** m_ppc; 
 	/// store if init has been called 
 	bool m_init; 
 }; 
