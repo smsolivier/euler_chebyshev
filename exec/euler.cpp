@@ -1,7 +1,6 @@
 #include "DataObjects.H"
 #include "Greens.H"
 #include "Writer.H"
-#include "Inverter.H"
 
 using namespace std; 
 
@@ -10,12 +9,15 @@ double gaussian(double x, double y, double xc, double yc, double width) {
 }
 
 int main(int argc, char* argv[]) {
+// check if highest modes are zeroed 
 #ifndef ZERO 
 	WARNING("unstable if zero not defined"); 
 #endif
+// show if paper cutter method is being used 
 #ifdef PC 
-	cout << "paper cutter on" << endl; 
+	WARNING("paper cutter method is less stable"); 
 #endif 
+// output if tau's are on 
 #ifdef TAU 
 	cout << "tau on" << endl; 
 #endif
@@ -23,10 +25,10 @@ int main(int argc, char* argv[]) {
 	if (argc > 1) N = atoi(argv[1]); 
 	array<int,DIM> dims = {N,N,N}; 
 
-	double T = 6; // end time 
+	double T = 12; // end time 
 	double K = 0.001; // time step 
 	int Nt = T/K; // number of time steps 
-	int NSAVES = 300; 
+	int NSAVES = 300; // number of writes 
 	int mod = Nt/NSAVES; 
 
 	// setup writer 
@@ -47,9 +49,6 @@ int main(int argc, char* argv[]) {
 	Vector V34(dims); 
 
 	// pressure 
-	Scalar P0(dims); 
-	Scalar P1(dims); 
-	Scalar Pi(dims); 
 	Scalar Pih(dims); 
 
 	// divergence 
@@ -95,6 +94,7 @@ int main(int argc, char* argv[]) {
 	}
 	omega0.forward(); 
 
+	// invert psi 
 	for (int i=0; i<dims[0]; i++) {
 		double m = psi.freq(i,0); 
 		for (int j=0; j<dims[1]; j++) {
@@ -110,18 +110,21 @@ int main(int argc, char* argv[]) {
 	V0[0] = -1.*grad[1]; 
 	V0[1] = grad[0]; 
 	
-	// store cross products 
+	// store cross product 
 	cross0 = K*V0.cross(omega0); 
 
 	// first time step with forward euler 
-	omega0 = V0.curl(); 
-
 	Vhalf = V0 + K*V0.cross(omega0); 
+
+	// invert pressure 
 	Pih = Vhalf.divergence();
 	Pih.invert_theta(Vhalf); 
-	Vhalf = V0 + K*V0.cross(omega0) - Pih.gradient(); 
-	greens.tau(Vhalf, V1); 
 
+	// update 
+	Vhalf = V0 + K*V0.cross(omega0) - Pih.gradient(); 
+	greens.tau(Vhalf, V1); // use green's functions for final update 
+
+	// check divergence is ok 
 	div = V1.divergence(); 
 	div.inverse(); 
 	cout << "max div = " << div.max() << endl; 
@@ -131,7 +134,7 @@ int main(int argc, char* argv[]) {
 
 	for (int t=1; t<Nt+1; t++) {
 
-		// // cross products 
+		// cross product
 		cross1 = K*V1.cross(omega1); 
 
 		// AB2 step 
@@ -165,13 +168,8 @@ int main(int argc, char* argv[]) {
 		double div_max = div.max(); 
 		CHECK(div_max < 1e-3, "divergence greater than tolerance"); 
 
-		// for (int k=0; k<dims[2]; k++) {
-		// 	CHECK(V[2](0,0,k) == 0., "Vz must be zero"); 
-		// }
-
 		cout << t*K/T << "\r"; 
 		cout.flush();
-		// cout << div.max() << endl; 
 	}
 	cout << "final div = " << div.max() << endl; 
 }
